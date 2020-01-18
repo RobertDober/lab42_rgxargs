@@ -1,0 +1,102 @@
+require 'ostruct'
+require 'lab42/enumerable'
+class Lab42::Rgxargs
+  PREDEFINED = {
+    list:  [%r{(\w+)(?:,(\w+))*},   ->(groups){ groups }],
+    range: [%r{\A(\d+)\.\.(\d+)\z}, ->(groups){ Range.new(*groups.map(&:to_i)) }]
+  }
+
+  attr_reader :args, :conversions, :defined_rules, :errors, :options, :syntaxes
+
+  def add_conversion(param, conversion)
+    conversions[param] = conversion
+  end
+
+  def add_syntax(rgx, parser=nil)
+    if parser
+      syntaxes << [rgx, parser]
+    else
+      if PREDEFINED[rgx]
+        syntaxes << PREDEFINED[rgx]
+      else
+        raise ArgumentError, "#{rgx} is not a predefined syntax, use one of the following:\n\t#{PREDEFINED.keys.join("\n\t")}"
+      end
+    end
+  end
+
+
+  def parse argv
+    until argv.empty?
+      argv = _parse_next argv
+    end
+    [options, args, errors]
+  end
+
+
+  private
+
+  def initialize &blk
+    @args          = []
+    @conversions   = {}
+    @defined_rules = []
+    @errors        = []
+    @options       = OpenStruct.new
+    @syntaxes      = []
+
+    instance_exec(&blk) if blk
+  end
+
+  def _convert(value, name:) 
+    conv = conversions.fetch(name, nil)
+    case conv
+    when Symbol
+      value.send conv
+    when Proc
+      conv.(value)
+    else
+      value
+    end
+  end
+
+  def _defined_rules(_arg)
+    false
+  end
+
+  def _parse_next argv
+    first, *rest = argv
+    if _defined_rules(first)
+      return rest
+    end
+    _parse_symbolic first, rest
+  end
+
+  def _parse_symbolic first, rest
+    case first
+    when %r{\A:(.*)}
+      options[$1.gsub('-','_').to_sym]=true
+      rest
+    when %r{(.*):\z}
+      _parse_value $1.gsub('-', '_').to_sym, rest
+    else
+      _parse_syntax(first)
+      rest
+    end
+  end
+
+  def _parse_syntax first
+    args << syntaxes.find_value(first) do |(rgx, converter)|
+      (match = rgx.match(first)) && converter.(match.captures) 
+    end
+  end
+
+  def _parse_value name, rest
+    value, *rest1 = rest
+    if value
+      options[name] = _convert(value, name: name)
+      return rest1
+    end
+    errors << [:missing_required_value, name]
+    []
+  end
+
+end
