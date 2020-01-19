@@ -1,10 +1,16 @@
+require 'forwardable'
 require 'ostruct'
 require 'lab42/enumerable'
+
 class Lab42::Rgxargs
   require_relative 'rgxargs/predefined_matchers'
   Predefined = PredefinedMatchers
 
+  extend Forwardable
+  def_delegators Predefined, :list_matcher
+
   attr_reader :args, :conversions, :defined_rules, :errors, :options, :syntaxes
+
 
   def add_conversion(param, conversion)
     case conversion
@@ -26,7 +32,6 @@ class Lab42::Rgxargs
       end
     end
   end
-
 
   def parse argv
     until argv.empty?

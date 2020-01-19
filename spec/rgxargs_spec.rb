@@ -71,13 +71,5 @@ RSpec.describe Lab42::Rgxargs do
       expect( parser.parse(%w{a,b c,d}) ).to eq(correct([%w{a b}, %w{c d}]))
     end
   end
-
-  def correct(positionals=[], **options)
-    [OpenStruct.new(**options), positionals, []]
-  end
-
-  def empty_correct positionals
-    [OpenStruct.new, positionals, []]
-  end
   
 end
