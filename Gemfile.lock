@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    lab42_rgxargs (0.0.1.pre)
+    lab42_rgxargs (0.1.0.pre)
 
 GEM
   remote: https://rubygems.org/

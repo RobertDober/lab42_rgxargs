@@ -1,17 +1,15 @@
 require 'ostruct'
 require 'lab42/enumerable'
 class Lab42::Rgxargs
-  PREDEFINED = {
-    list:  [%r{(\w+)(?:,(\w+))*},   ->(groups){ groups }],
-    range: [%r{\A(\d+)\.\.(\d+)\z}, ->(groups){ Range.new(*groups.map(&:to_i)) }]
-  }
+  require_relative 'rgxargs/predefined_matchers'
+  Predefined = PredefinedMatchers
 
   attr_reader :args, :conversions, :defined_rules, :errors, :options, :syntaxes
 
   def add_conversion(param, conversion)
     case conversion
     when Symbol
-      conversions[param] = PREDEFINED.fetch(conversion, conversion)
+      conversions[param] = Predefined.fetch(conversion, conversion)
     else
       conversions[param] = conversion
     end
@@ -21,10 +19,10 @@ class Lab42::Rgxargs
     if parser
       syntaxes << [rgx, parser]
     else
-      if PREDEFINED[rgx]
-        syntaxes << PREDEFINED[rgx]
+      if predef = Predefined.fetch(rgx)
+        syntaxes << predef
       else
-        raise ArgumentError, "#{rgx} is not a predefined syntax, use one of the following:\n\t#{PREDEFINED.keys.join("\n\t")}"
+        raise ArgumentError, "#{rgx} is not a predefined syntax, use one of the following:\n\t#{Predefined.defined_names}"
       end
     end
   end
