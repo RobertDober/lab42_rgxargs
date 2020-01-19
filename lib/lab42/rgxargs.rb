@@ -9,7 +9,12 @@ class Lab42::Rgxargs
   attr_reader :args, :conversions, :defined_rules, :errors, :options, :syntaxes
 
   def add_conversion(param, conversion)
-    conversions[param] = conversion
+    case conversion
+    when Symbol
+      conversions[param] = PREDEFINED.fetch(conversion, conversion)
+    else
+      conversions[param] = conversion
+    end
   end
 
   def add_syntax(rgx, parser=nil)
@@ -53,6 +58,13 @@ class Lab42::Rgxargs
       value.send conv
     when Proc
       conv.(value)
+    when Array
+      if (match = conv.first.match(value))
+         conv.last.(match.captures) 
+      else
+        errors << [:syntax_error, name, "#{value} does not match #{conv.first}"]
+        nil
+      end
     else
       value
     end

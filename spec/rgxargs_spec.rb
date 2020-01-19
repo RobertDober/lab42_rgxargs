@@ -39,6 +39,22 @@ RSpec.describe Lab42::Rgxargs do
       parser.add_conversion(:a, ->(v){ v.to_i * 2 })
       expect(parser.parse(%w{a: 21})).to eq(correct(a: 42))
     end
+    it "can also use a predefined converter" do
+      parser.add_conversion(:a, :list)
+      expect(parser.parse(%w{a: 21,22})).to eq(correct(a: %w{21 22}))
+    end
+    it "issues an error if a predefined converter does not match" do
+      parser.add_conversion(:a, :range)
+      expect(parser.parse(%w{a: 21})).to eq([OpenStruct.new(a: nil), [], [[:syntax_error, :a, "21 does not match (?-mix:\\A(\\d+)\\.\\.(\\d+)\\z)"]]])
+    end
+    it "can use the matching syntax as well" do
+      parser.add_conversion(:a, [%r{\A(.)\1\z}, ->((f,_)){f}])
+      expect(parser.parse(%w{a: 22})).to eq(correct(a: "2"))
+    end
+    it "can use the matching syntax as well, and get the same errors" do
+      parser.add_conversion(:a, [%r{\A(.)\1\z}, ->((f,_)){f}])
+      expect(parser.parse(%w{a: 23})).to eq([OpenStruct.new(a: nil), [], [[:syntax_error, :a, "23 does not match (?-mix:\\A(.)\\1\\z)"]]])
+    end
   end
 
   context "custom arguments" do
