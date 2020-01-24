@@ -1,0 +1,18 @@
+branches:
+  only:
+    - master
+
+language: ruby
+rvm:
+  - "2.6.0"
+
+install: 
+  - bundle install
+    # Assure order of files for qed
+    #- touch demo/fordir/subdir/1
+    #- chmod 444 demo/forfile/readable
+script: 
+  - bundle exec rspec spec
+  # - CODECLIMATE_REPO_TOKEN=${CODECLIMATE_REPO_TOKEN} bundle exec codeclimate-test-reporter
+
+

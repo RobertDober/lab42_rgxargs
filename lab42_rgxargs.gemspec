@@ -11,6 +11,8 @@ Gem::Specification.new do |s|
     'https://github.com/robertdober/lab42_rgxargs'
   s.license       = 'Apache-2.0'
 
+  s.required_ruby_version = '>= 2.6.0'
+
   s.add_development_dependency 'rspec', '~> 3.9'
   s.add_development_dependency 'pry-byebug', '~> 3.7'
 
