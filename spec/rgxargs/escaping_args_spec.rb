@@ -4,7 +4,6 @@ RSpec.describe Lab42::Rgxargs do
   context "we have some syntax being assigned to :range, let us see how we can escape matching values into args" do
     before do
       parser.define_arg(:range) do
-        syntax(%r{(\d+)\.\.(\d+)}){ |*captures| Range.new(*captures.map(&:to_i)) }
         syntax(%r{(\d+)}){ |n| Range.new(n.to_i, n.to_i) }
         syntax(:zero, 0..0)
       end
@@ -17,6 +16,10 @@ RSpec.describe Lab42::Rgxargs do
     end
     it "however we can also escape only the first zero" do
       expect(parser.parse(%w[\zero alpha zero])).to eq(correct(%w[zero alpha], range: 0..0))
+    end
+
+    it "this works for the numbers too, of course" do
+      expect(parser.parse(%w[\42 42])).to eq(correct(%w[42], range: 42..42))
     end
   end
   
