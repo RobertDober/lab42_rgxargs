@@ -13,7 +13,7 @@ class Lab42::Rgxargs::ArgumentMatcher
     case matcher
     when Regexp
       match = matcher.match(value)
-      match && [converter.(match.captures), arg_name] 
+      match && [converter.(*match.captures), arg_name] 
     else
       matcher.to_s == value && [converter.(), arg_name]
     end

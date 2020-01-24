@@ -18,17 +18,18 @@ RSpec.describe Lab42::Rgxargs do
 
   context "can store depending on the syntax or an option" do
     before do
-      parser.add_syntax(%r{(\d+)\.\.(\d+)}, ->(captures){ Range.new(*captures.map(&:to_i)) }, as: :range)
-      parser.add_syntax(%r{(\d+)}, ->(captures){ Range.new(captures.first.to_i,captures.first.to_i) }, as: :range)
+      parser.add_syntax(%r{(\d+)\.\.(\d+)}, ->(low, high){ Range.new(low.to_i, high.to_i) }, as: :range)
+      parser.add_syntax(%r{(\d+)}, ->(n){ Range.new(n.to_i, n.to_i) }, as: :range)
       parser.add_syntax(:zero, ->{ 0..0 }, as: :range)
     end
     it_behaves_like "multi syntax"
   end
+
   context "syntactic sugar to describe an arg with many syntaxes" do
     before do
       parser.define_arg(:range) do
-        syntax(%r{(\d+)\.\.(\d+)}){ |captures| Range.new(*captures.map(&:to_i)) }
-        syntax(%r{(\d+)}){ |captures| Range.new(captures.first.to_i,captures.first.to_i) }
+        syntax(%r{(\d+)\.\.(\d+)}){ |*captures| Range.new(*captures.map(&:to_i)) }
+        syntax(%r{(\d+)}){ |n| Range.new(n.to_i, n.to_i) }
         syntax(:zero, 0..0)
       end
     end

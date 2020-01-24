@@ -62,7 +62,7 @@ module Lab42
         conv.(value)
       when Array
         if (match = conv.first.match(value))
-          conv[1].(match.captures) 
+          conv[1].(*match.captures) 
         else
           errors << [:syntax_error, name, "#{value} does not match #{conv.first}"]
           nil
