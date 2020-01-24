@@ -89,6 +89,9 @@ module Lab42
         rest
       when %r{(.*):\z}
         _parse_value $1.gsub('-', '_').to_sym, rest
+      when %r{\A\\(.*)}
+        args << $1
+        rest
       else
         _parse_syntax(first)
         rest
