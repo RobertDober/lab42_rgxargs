@@ -22,11 +22,11 @@ module Lab42
       end
     end
 
-    def add_syntax(rgx, parser=nil)
+    def add_syntax(rgx, parser=nil, as: nil)
       if parser
-        syntaxes << [rgx, parser]
+        syntaxes << [rgx, parser, as]
       else
-        if predef = Predefined.fetch(rgx)
+        if predef = Predefined.fetch(rgx, as: as)
           syntaxes << predef
           else
             raise ArgumentError, "#{rgx} is not a predefined syntax, use one of the following:\n\t#{Predefined.defined_names}"
@@ -64,7 +64,7 @@ module Lab42
           conv.(value)
         when Array
           if (match = conv.first.match(value))
-            conv.last.(match.captures) 
+            conv[1].(match.captures) 
           else
             errors << [:syntax_error, name, "#{value} does not match #{conv.first}"]
             nil
@@ -100,8 +100,13 @@ module Lab42
       end
 
       def _parse_syntax first
-        args << syntaxes.find_value(first) do |(rgx, converter)|
-          (match = rgx.match(first)) && converter.(match.captures) 
+        value, as = syntaxes.find_value(first) do |(rgx, converter, as)|
+          (match = rgx.match(first)) && [converter.(match.captures), as] 
+        end
+        if as
+          options[as] = value
+        else
+          args << value
         end
       end
 

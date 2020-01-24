@@ -3,7 +3,6 @@ RSpec.describe Lab42::Rgxargs do
 
 
   context "no custom definitions -> return options and args" do
-
     it "works for empty" do
       expect(parser.parse([])).to eq(empty_correct([]))
     end
@@ -70,6 +69,11 @@ RSpec.describe Lab42::Rgxargs do
       parser.add_syntax(:list)
       expect( parser.parse(%w{a,b c,d}) ).to eq(correct([%w{a b}, %w{c d}]))
     end
+    it "can store depending on the syntax" do
+      parser.add_syntax(%r{(\d+)\.\.(\d+)}, ->(captures){ Range.new(*captures.map(&:to_i)) }, as: :range)
+      expect( parser.parse(%w{1 2..4}) ).to eq(correct(['1'], range: 2..4))
+    end
   end
+
   
 end
