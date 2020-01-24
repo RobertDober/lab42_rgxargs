@@ -10,8 +10,8 @@ module Lab42::Rgxargs::PredefinedMatchers extend self
      @__defined_names__ ||= PREDEFINED.keys.join("\n\t")
   end
 
-  def fetch(key, default=nil, as: nil, &blk)
-    return PREDEFINED[key] + [as] if PREDEFINED.has_key?(key)
+  def fetch(key, default=nil, &blk)
+    return PREDEFINED[key] if PREDEFINED.has_key?(key)
     blk ? blk.(key) : default
   end
 

@@ -56,7 +56,7 @@ RSpec.describe Lab42::Rgxargs do
     end
   end
 
-  context "custom arguments" do
+  context "custom_arguments" do
     it "can detect syntaxes in positional parameters" do
       parser.add_syntax(%r{(\d+)\.\.(\d+)}, ->(captures){ Range.new(*captures.map(&:to_i)) })
       expect( parser.parse(%w{1 2..4}) ).to eq(correct(['1', 2..4]))
@@ -75,5 +75,4 @@ RSpec.describe Lab42::Rgxargs do
     end
   end
 
-  
 end
