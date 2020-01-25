@@ -1,4 +1,15 @@
+# Instanciated with an Rgxargs parser it can run a block
+# in its own context so that the block accesses the
+# parser's functionality with syntactic sugar w/o cluttering
+# ther parser itself with too many methods
+# E.g.:
+#
+#     ```ruby
+#         syntax
+#         
+#     ```
 class Lab42::Rgxargs::SyntaxDefiner
+
 
   attr_reader :arg_name, :parser
 
