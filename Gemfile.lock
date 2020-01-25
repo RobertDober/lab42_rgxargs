@@ -16,6 +16,9 @@ GEM
     pry-byebug (3.7.0)
       byebug (~> 11.0)
       pry (~> 0.10)
+    pry-doc (1.0.0)
+      pry (~> 0.11)
+      yard (~> 0.9.11)
     rspec (3.9.0)
       rspec-core (~> 3.9.0)
       rspec-expectations (~> 3.9.0)
@@ -29,6 +32,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.9.0)
     rspec-support (3.9.2)
+    yard (0.9.24)
 
 PLATFORMS
   ruby
@@ -36,6 +40,7 @@ PLATFORMS
 DEPENDENCIES
   lab42_rgxargs!
   pry-byebug (~> 3.7)
+  pry-doc (~> 1.0)
   rspec (~> 3.9)
 
 BUNDLED WITH
