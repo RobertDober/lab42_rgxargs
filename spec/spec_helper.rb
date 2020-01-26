@@ -14,6 +14,7 @@
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 require_relative '../lib/lab42'
+require_relative '../lib/lab42/rgxargs'
 Dir.glob('support/**/*.rb').each{ |f| require_relative f }
 
   def correct(positionals=[], **options)

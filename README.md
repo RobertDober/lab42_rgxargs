@@ -1,4 +1,5 @@
 # lab42_rgxargs
+
 parse args according to regexen
 
 [![Build Status](https://travis-ci.org/RobertDober/lab42_rgxargs.svg?branch=master)](https://travis-ci.org/RobertDober/lab42_rgxargs)
@@ -9,4 +10,15 @@ parse args according to regexen
   [![Test Coverage](https://codeclimate.com/github/RobertDober/lab42_streams/badges/coverage.svg)](https://codeclimate.com/github/RobertDober/lab42_streams)
 -->
 
+## DESCRIPTION
 
+* The Rationale is described in this [Speculation](spec/speculations/RATIONALE.md)  
+
+* The API is described in this [Speculation](spec/speculations/API.md)  
+
+
+## LICENSE
+
+Copyright 2020 Robert Dober robert.dober@gmail.com
+
+Apache-2.0 [c.f LICENSE](LICENSE)  

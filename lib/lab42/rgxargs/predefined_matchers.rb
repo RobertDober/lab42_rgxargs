@@ -1,5 +1,6 @@
 module Lab42::Rgxargs::PredefinedMatchers extend self
   PREDEFINED = {
+    int: [%r{\A([-+]?\d+)\z}, :to_i.to_proc],
     int_list: [%r{\A(-?\d+(?:,-?\d+)*)\z}, ->(*groups){ groups.first.split(",").map(&:to_i)}],
     int_range: [%r{\A(-?\d+)(?:-|\.\.)(-?\d+)\z}, ->(f, l){ Range.new(f.to_i, l.to_i) }],
     list:  [%r{(\w+)(?:,(\w+))*},   ->(*groups){ groups.compact }],
@@ -16,12 +17,11 @@ module Lab42::Rgxargs::PredefinedMatchers extend self
   end
 
   def list_matcher values
-    [%r{\A((?:#{values.join("|")})(?:,(?:#{values.join("|")}))*)\z}, _list_extractor]
+    [%r{\A((?:#{values.join("|")})(?:,(?:#{values.join("|")}))*)\z}, method(:_list_extractor)]
   end
 
 
-  # Memoized
-  def _list_extractor
-    @__list_extractor__ ||= ->(*groups){ groups.first.split(",") }
+  def _list_extractor(*groups)
+    groups.first.split(",")
   end
 end

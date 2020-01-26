@@ -15,12 +15,12 @@ module Lab42
     attr_reader :args, :conversions, :defined_rules, :errors, :options, :syntaxes
 
 
-    def add_conversion(param, conversion)
+    def add_conversion(param, conversion, &block)
       case conversion
       when Symbol
         conversions[param] = Predefined.fetch(conversion, conversion)
       else
-        conversions[param] = conversion
+        conversions[param] = block ? [conversion, block] : conversion
       end
     end
 
