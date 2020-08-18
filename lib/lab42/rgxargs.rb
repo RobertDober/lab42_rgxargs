@@ -1,6 +1,7 @@
 require 'forwardable'
 require 'ostruct'
 require 'lab42/enumerable'
+require 'set'
 module Lab42
 
   class Rgxargs
@@ -72,11 +73,11 @@ module Lab42
       @defaults      = {}
       @defined_rules = []
       @errors        = []
-      @required      = Set.new
+      @required      = ::Set.new
       @syntaxes      = []
 
       instance_exec(&blk) if blk
-      @options       = OpenStruct.new(defaults)
+      @options       = ::OpenStruct.new(defaults)
     end
 
     def _convert(value, name:)
