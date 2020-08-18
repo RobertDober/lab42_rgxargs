@@ -1,6 +1,7 @@
+require_relative "./lib/lab42/rgxargs/version"
 Gem::Specification.new do |s|
   s.name        = 'lab42_rgxargs'
-  s.version     = '0.2.0'
+  s.version     = Lab42::Rgxargs::VERSION
   s.date        = '2020-01-27'
   s.summary     = 'Parse CL args according to regexen'
   s.description = 'Parse CL args according to regexen'
