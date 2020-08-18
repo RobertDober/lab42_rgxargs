@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'lab42_rgxargs'
-  s.version     = '0.1.6'
+  s.version     = '0.2.0'
   s.date        = '2020-01-27'
   s.summary     = 'Parse CL args according to regexen'
   s.description = 'Parse CL args according to regexen'
