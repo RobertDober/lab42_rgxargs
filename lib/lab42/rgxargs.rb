@@ -4,28 +4,40 @@ require 'lab42/enumerable'
 module Lab42
 
   class Rgxargs
+    require_relative 'rgxargs/checker'
+    require_relative 'rgxargs/constrainer'
     require_relative 'rgxargs/predefined_matchers'
     require_relative 'rgxargs/argument_matcher'
     require_relative 'rgxargs/syntax_definer'
+    include Checker
+    include Constrainer
+
     Predefined = PredefinedMatchers
 
     extend Forwardable
     def_delegators Predefined, :list_matcher
 
-    attr_reader :args, :conversions, :defined_rules, :errors, :options, :syntaxes
+    attr_reader :allowed, :args, :conversions, :defaults, :defined_rules, :errors, :options, :required, :syntaxes
 
 
-    def add_conversion(param, conversion, &block)
+    def add_conversion(param, conversion, required=nil, &block)
       case conversion
       when Symbol
-        conversions[param] = Predefined.fetch(conversion, conversion)
+        _add_symbolic_conversion(param, conversion, required)
       else
-        conversions[param] = block ? [conversion, block] : conversion
+        _add_proc_conversion(param, conversion, block, required)
       end
     end
 
     def add_syntax(rgx, parser=nil, as: nil)
-      syntaxes << ArgumentMatcher.new(rgx, parser, arg_name: as) 
+      case rgx
+      when Symbol, Regexp
+        syntaxes << ArgumentMatcher.new(rgx, parser, arg_name: as)
+      when Array
+        rgx.each do |rg1|
+          add_syntax( rg1, parser, as: as)
+        end
+      end
     end
 
     def define_arg name, &blk
@@ -36,6 +48,7 @@ module Lab42
       until argv.empty?
         argv = _parse_next argv
       end
+      _check_required_kwds
       [options, args, errors]
     end
 
@@ -44,16 +57,19 @@ module Lab42
 
     def initialize &blk
       @args          = []
+      @allowed       = nil
       @conversions   = {}
+      @defaults      = {}
       @defined_rules = []
       @errors        = []
-      @options       = OpenStruct.new
+      @required      = Set.new
       @syntaxes      = []
 
       instance_exec(&blk) if blk
+      @options       = OpenStruct.new(defaults)
     end
 
-    def _convert(value, name:) 
+    def _convert(value, name:)
       conv = conversions.fetch(name, nil)
       case conv
       when Symbol
@@ -62,7 +78,7 @@ module Lab42
         conv.(value)
       when Array
         if (match = conv.first.match(value))
-          conv[1].(*match.captures) 
+          conv[1].(*match.captures)
         else
           errors << [:syntax_error, name, "#{value} does not match #{conv.first}"]
           nil
@@ -72,6 +88,19 @@ module Lab42
       end
     end
 
+    def _add_proc_conversion(param, conversion, block, required)
+      Array(param).each do |para|
+        @required.add para if required == :required
+        conversions[para] =  block ? [conversion, block] : conversion
+      end
+    end
+
+    def _add_symbolic_conversion(param, conversion, required)
+      Array(param).each do |para|
+        @required.add para if required == :required
+        conversions[para] = Predefined.fetch(conversion, conversion)
+      end
+    end
 
     def _parse_next argv
       first, *rest = argv
@@ -85,10 +114,14 @@ module Lab42
     def _parse_symbolic first, rest
       case first
       when %r{\A:(.*)}
-        options[$1.gsub('-','_').to_sym]=true
+        switch = $1.gsub('-','_').to_sym
+        _check_switch(switch)
+        options[switch]=true
         rest
       when %r{(.*):\z}
-        _parse_value $1.gsub('-', '_').to_sym, rest
+        kwd = $1.gsub('-', '_').to_sym
+        _check_kwd(kwd)
+        _parse_value kwd, rest
       when %r{\A\\(.*)}
         args << $1
         rest

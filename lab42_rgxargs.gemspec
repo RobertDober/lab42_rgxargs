@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'lab42_rgxargs'
-  s.version     = '0.1.5'
+  s.version     = '0.1.6'
   s.date        = '2020-01-27'
   s.summary     = 'Parse CL args according to regexen'
   s.description = 'Parse CL args according to regexen'
@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '>= 2.7.0'
 
 
-  s.add_development_dependency 'lab42_speculate', '~> 0.0.4'
+  s.add_development_dependency 'speculate_about', '~> 0.1.2'
   s.add_development_dependency 'rspec', '~> 3.9'
   s.add_development_dependency 'pry-byebug', '~> 3.7'
   s.add_development_dependency 'pry-doc', '~> 1.0'
