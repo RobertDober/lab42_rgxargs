@@ -20,10 +20,12 @@ module Lab42
     attr_reader :allowed, :args, :conversions, :defaults, :defined_rules, :errors, :options, :required, :syntaxes
 
 
-    def add_conversion(param, conversion, required=nil, &block)
+    def add_conversion(param, conversion=nil, required=nil, &block)
       case conversion
       when Symbol
         _add_symbolic_conversion(param, conversion, required)
+      when NilClass
+        _add_simple_conversion(param, block)
       else
         _add_proc_conversion(param, conversion, block, required)
       end
@@ -52,6 +54,14 @@ module Lab42
       [options, args, errors]
     end
 
+
+    def allows name, matcher=nil, &converter
+      add_conversion(name, matcher, &converter)
+    end
+
+    def needs name, matcher=nil, &converter
+      add_conversion(name, matcher, :required, &converter)
+    end
 
     private
 
@@ -92,6 +102,12 @@ module Lab42
       Array(param).each do |para|
         @required.add para if required == :required
         conversions[para] =  block ? [conversion, block] : conversion
+      end
+    end
+
+    def _add_simple_conversion(param, block)
+      Array(param).each do |para|
+        conversions[para] = block
       end
     end
 

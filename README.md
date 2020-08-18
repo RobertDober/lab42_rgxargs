@@ -76,6 +76,16 @@ Such common converters are predefined of course
     
 ```
 
+We can also just pass in the converter without a guarding match expression
+
+```ruby :example We do not mind if it is 0
+
+    parser.add_conversion(:maybe_int, &:to_i)
+      expect(parser.parse(%w[maybe_int: fourtytwo]).first)
+        .to eq(os(maybe_int: 0))
+    
+```
+
 
 Both converters do return errors if non integers are passed in
 
@@ -223,6 +233,26 @@ and the allowed work as expected
     kwds, _, errors = parser.parse(%w[to: 2 from: 1])
     expect(errors).to be_empty
     expect(kwds).to eq(os(from: "1", to: 2))
+    
+```
+
+#### Context Syntactic Sugar
+
+Now all these API calls might not be your cup of tea, so let us add Syntactic Sugar to your Cup of Tea:
+
+```ruby :include Defining a simple conversion with required parameters
+    let :parser do
+      Lab42::Rgxargs.new do
+        needs  :n, &:to_i
+        allows :m, &:to_i
+      end
+    end
+```
+
+```ruby :example
+
+  kwds, _, _ = parser.parse(%w[n: alpha, m: 42])
+  expect(kwds).to eq(os(n: 0, m: 42))
     
 ```
 
