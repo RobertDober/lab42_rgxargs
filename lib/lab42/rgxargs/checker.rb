@@ -15,7 +15,7 @@ module Lab42
         missing = required - options.to_h.keys
         @errors += missing.map(&_mk_pair(:required_kwd_missing))
       end
-      
+
 
       def _mk_pair(prefix)
         -> element do
@@ -24,7 +24,7 @@ module Lab42
       end
 
       def _check_switch(_)
-        
+
       end
 
 

@@ -80,7 +80,9 @@ And such common converters are predefined of course, and thusly
 
 And you can see all predefined matchers as follows
 ```ruby
-    predefined_matchers = %w[ int int_list int_range list range ].join("\n\t")
+    predefined_matchers =
+      %w[ existing_dirs int int_list int_range list range ]
+      .join("\n\t")
     expect(parser.predefined_matchers).to eq(predefined_matchers)
 ```
 
@@ -242,6 +244,23 @@ Then the conversion works of course as expected
   expect(kwds).to eq(os(n: 0, m: 42))
 ```
 
+##### Context: Using predefined matches in the DSL
+
+Given the directories `dir1` and `dir2` in the [fixtures directory](https://github.com/RobertDober/lab42_rgxargs/tree/master/spec/fixtures)
+```ruby
+    let :parser do
+      Lab42::Rgxargs.new do
+        allows :dirs, :existing_dirs
+      end
+    end
+```
+
+Then we can parse the keyword arguments with existing dirs w/o an error
+```ruby
+    glob = 'spec/fixtures/dir*'
+    kwds, _, _ = parser.parse(["dirs:", glob])
+    expect(kwds.dirs.sort).to eq(%w[spec/fixtures/dir1 spec/fixtures/dir2])
+```
 
 ## LICENSE
 
