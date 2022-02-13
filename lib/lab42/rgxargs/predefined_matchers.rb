@@ -1,5 +1,6 @@
 module Lab42::Rgxargs::PredefinedMatchers extend self
   PREDEFINED = {
+    existing_dirs: [%r{(.+)}, ->(glob){ Dir.glob(glob).filter{ File.directory?(_1) } }],
     int: [%r{\A([-+]?\d+)\z}, :to_i.to_proc],
     int_list: [%r{\A(-?\d+(?:,-?\d+)*)\z}, ->(*groups){ groups.first.split(",").map(&:to_i)}],
     int_range: [%r{\A(-?\d+)(?:-|\.\.)(-?\d+)\z}, ->(f, l){ Range.new(f.to_i, l.to_i) }],
