@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
     'https://github.com/robertdober/lab42_rgxargs'
   s.license       = 'Apache-2.0'
 
-  s.required_ruby_version = '>= 2.7.0'
+  s.required_ruby_version = '>= 3.1.0'
 
 
   s.add_development_dependency 'speculate_about', '~> 0.1.2'

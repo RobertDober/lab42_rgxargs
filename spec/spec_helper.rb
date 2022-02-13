@@ -13,9 +13,25 @@
 # it.
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
+require 'simplecov'
+SimpleCov.start do
+  add_filter "/spec/"
+  if ENV['CI']
+    require 'simplecov-lcov'
+
+    SimpleCov::Formatter::LcovFormatter.config do |c|
+      c.report_with_single_file = true
+      c.single_report_path = 'coverage/lcov.info'
+    end
+
+    formatter SimpleCov::Formatter::LcovFormatter
+  end
+
+  add_filter %w[version.rb initializer.rb]
+end
+
 require_relative '../lib/lab42'
 require_relative '../lib/lab42/rgxargs'
-require 'speculate_about'
 Dir.glob('support/**/*.rb').each{ |f| require_relative f }
 
   def correct(positionals=[], **options)

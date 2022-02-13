@@ -20,6 +20,10 @@ module Lab42
 
     attr_reader :allowed, :args, :conversions, :defaults, :defined_rules, :errors, :options, :required, :syntaxes
 
+    def predefined_matchers
+      Predefined.defined_names
+    end
+
 
     def add_conversion(param, conversion=nil, required=nil, &block)
       case conversion
@@ -54,7 +58,6 @@ module Lab42
       _check_required_kwds
       [options, args, errors]
     end
-
 
     def allows name, matcher=nil, &converter
       add_conversion(name, matcher, &converter)

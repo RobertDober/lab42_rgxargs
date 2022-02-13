@@ -2,8 +2,11 @@
 
 parse args according to regexen
 
-[![Build Status](https://travis-ci.org/RobertDober/lab42_rgxargs.svg?branch=master)](https://travis-ci.org/RobertDober/lab42_rgxargs)
+[![Issue Count](https://codeclimate.com/github/RobertDober/lab42_rgxargs/badges/issue_count.svg)](https://codeclimate.com/github/RobertDober/lab42_rgxargs)
+[![CI](https://github.com/robertdober/lab42_rgxargs/workflows/CI/badge.svg)](https://github.com/robertdober/lab42_rgxargs/actions)
+[![Coverage Status](https://coveralls.io/repos/github/RobertDober/lab42_rgxargs/badge.svg?branch=master)](https://coveralls.io/github/RobertDober/lab42_rgxargs?branch=master)
 [![Gem Version](https://badge.fury.io/rb/lab42_rgxargs.svg)](http://badge.fury.io/rb/lab42_rgxargs)
+[![Gem Downloads](https://img.shields.io/gem/dt/lab42_rgxargs.svg)](https://rubygems.org/gems/lab42_rgxargs)
 <!--
      [![Code Climate](https://codeclimate.com/github/RobertDober/lab42_streams/badges/gpa.svg)](https://codeclimate.com/github/RobertDober/lab42_streams)
   [![Issue Count](https://codeclimate.com/github/RobertDober/lab42_streams/badges/issue_count.svg)](https://codeclimate.com/github/RobertDober/lab42_streams)
@@ -16,109 +19,107 @@ parse args according to regexen
 Short answer, _Yes_, long answer, _Yes_ because I need one
 that does what I want.
 
+## How does it work?
+
+Let us [speculate about](https://github.com/RobertDober/speculate_about) that:
+
+## Context Setup for speculations
+
+Given the default parser
+```ruby
+      let(:parser) {Lab42::Rgxargs.new}
+
+      private
+      def os(**kwds); OpenStruct.new(kwds) end
+```
 ### What Do I want?
 
 Simple usage with minimum boilerplate
 
-```ruby :include
-      let(:parser) {Lab42::Rgxargs.new}
-      def os(**kwds); OpenStruct.new(kwds) end
-```
-
 #### Context No Config Out Of The Box
 
-That gives me a ruby like syntax for keywords and here we go:
-
-```ruby :example Plain Vanilla Parsing
+Then I can parse ruby syntax based arguments
+```ruby
       kwds, positionals, _errors = parser.parse(%w{a: 42 hello :b})
       expect(kwds).to eq(os(a: "42", b: true))
       expect(positionals).to eq(%w{hello})
 ```
 
-The only error one can get with this null configuration is a missing value for trailing keyword arg
-
-```ruby :example
+And the only error one can get with this null configuration is a missing value for trailing keyword arg
+```ruby
       kwds, _, errors = parser.parse(%w{a: b: a:})
       expect(kwds).to eq(os(a: "b:"))
       expect(errors).to eq([[:missing_required_value, :a]])
 ```
 
-
-but what if I want
-
-### Some Features
+### Something A Little Bit More Elaborate?
 
 like
 
-#### Context Conversion Of Keyword Parameters
+#### Context: Conversion Of Keyword Parameters
 
-By adding this configuration to the parser
-
-```ruby :before
-      parser.add_conversion(:lower, %r{\A([-+]?\d+)}, &:to_i)
-  
+Given this additional configuration, with a guard
+```ruby
+    before { parser.add_conversion(:lower, %r{\A([-+]?\d+)}, &:to_i) }
 ```
 
-Now the parsed value for the `lower` argument will be an `Integer`, while
-the other parsed values remain `Strings` 
-
-```ruby :example Explicit Keyword Conversion
+Then the parsed value for the `lower` argument will be an `Integer`, while the other parsed values remain `Strings`
+```ruby
     expect(parser.parse(%w[lower: 42 upper: 43]).first)
       .to eq(os(lower: 42, upper: "43"))
 ```
 
-Such common converters are predefined of course
+##### Context: Withe predefined matchers
 
-```ruby :example Predefined Converter
+And such common converters are predefined of course, and thusly
+```ruby
       parser.add_conversion(:alpha, :int)
       expect(parser.parse(%w[alpha: 42]).first)
         .to eq(os(alpha: 42))
-    
 ```
 
-We can also just pass in the converter without a guarding match expression
+And you can see all predefined matchers as follows
+```ruby
+    predefined_matchers = %w[ int int_list int_range list range ].join("\n\t")
+    expect(parser.predefined_matchers).to eq(predefined_matchers)
+```
 
-```ruby :example We do not mind if it is 0
-
+And We can also just pass in the converter without a guard
+```ruby
     parser.add_conversion(:maybe_int, &:to_i)
       expect(parser.parse(%w[maybe_int: fourtytwo]).first)
         .to eq(os(maybe_int: 0))
-    
 ```
 
 
-Both converters do return errors if non integers are passed in
-
-```ruby :example Illegal Integer
+But converters with guards do return meaningful error messages
+```ruby
     _, _, errors = parser.parse(%w{lower: hello})
     expect(errors).to eq([[:syntax_error, :lower, "hello does not match (?-mix:\\A([-+]?\\d+))"]])
-    
 ```
 
-#### Context General Syntax
+#### Context: General Syntax
 
 Sometimes we want to define syntax for positional parameters too.
 
 This can be done with the `add_syntax` method.
 
-```ruby :example A custom syntax for defining a range
+And therefore
+```ruby
       parser.add_syntax(%r{(\d+)\.\.(\d+)}, ->(*captures){ Range.new(*captures.map(&:to_i)) })
       _, my_range, _ = parser.parse(%w{1..3})
       expect(my_range.first).to eq(1..3)
 ```
 
-and is of course predefined
-
-```ruby :example The predefined :range syntax
+And we have some predefined syntaxes, of course
+```ruby
       parser.add_syntax(:range)
       _, my_range, _ = parser.parse(%w{1..3})
       expect(my_range.first).to eq(1..3)
-    
 ```
 
-Now the added syntaxen are of course applied to **all** arguments, e.g.
-
-```ruby :example Lists and Ranges
+And they are of course applied to **all** arguments, e.g.
+```ruby
       parser.add_syntax(:range)
       parser.add_syntax(:list)
       _, pos , _ = parser.parse(%w{ 1,2 1..3 42})
@@ -126,22 +127,18 @@ Now the added syntaxen are of course applied to **all** arguments, e.g.
       expect(list).to eq(%w{1 2}) # N.B. Strings
       expect(range).to eq(1..3)
       expect(answer).to eq(%w{42})  # N.B. Strings
-    
 ```
 
 
-There is a special `int_list` converter available
-
-```ruby :example Intlists
+And there is a special `int_list` converter available
+```ruby
       parser.add_syntax(:int_list)
       _, list, _ = parser.parse(%w{1,2,4})
       expect(list.first).to eq([1,2,4])
 ```
 
-Of course a `add_syntax` (for positionals) and  `add_conversion` (for keywords) can be mixed using the same
-converters under the hood
-
-```ruby :example Mixing add_syntax and add_conversion
+And Of course a `add_syntax` (for positionals) and  `add_conversion` (for keywords) can be mixed using the same converters under the hood
+```ruby
       parser.add_conversion([:lower, :upper], :int)
       parser.add_syntax([:int, :range])
 
@@ -159,18 +156,17 @@ Imagine a tool that compares a file's access time with a timestamp, then it migh
 the positionals as follows:
 
 
-```ruby :example Named Positionals
+And therefore we have
+```ruby
 
       parser.add_syntax(%r{\A(\d+:\d+:\d+)\z}, ->(ts){ ts }, as: :timestamp)
       kwds, positionals, _ = parser.parse(%w[foo 20:10:10])
       expect(kwds.timestamp).to eq("20:10:10")
       expect(positionals).to eq(%w{foo})
-    
 ```
 
-For more complex possibilities of timestamps one can use a little DSL
-
-```ruby :example DSL for naming positionals
+And for more complex possibilities of timestamps one can use a little DSL
+```ruby
 
       parser.define_arg(:timestamp) do
         syntax(%r{\A(\d+:\d+)\z}, &:itself)
@@ -179,41 +175,33 @@ For more complex possibilities of timestamps one can use a little DSL
 
       kwds, _, _ = parser.parse(%w[123456])
       expect(kwds.timestamp).to eq(123456)
-    
 ```
 
 #### Context Constraints
 
-##### Allowing Keyword Params
+##### Context: Allowing Keyword Params
 
-Allowing keywords means, all others are forbidden
-
-```ruby :example Allowing a keyword
-
+And Allowing keywords means, all others are forbidden
+```ruby
     parser.allow_kwds(:version)
 
     _, _, errors = parser.parse(%w[vision: 41])
     expect(errors) == [[:unauthorized_kwd, :vision]]
-    
 ```
 
-and the allowed work as expected
-
-```ruby :example Allowing a keyword, correct case
-
+But the allowed work as expected
+```ruby
     parser.allow_kwds(:version)
 
     kwds, _, errors = parser.parse(%w[version: 42])
     expect(errors).to be_empty
     expect(kwds.version).to eq("42")
-    
 ```
 
-#### Require Keyword Params
+#### Context: Require Keyword Params
 
-
-```ruby :example Required Kwd Params are missing
-
+And if required keywords are absent...
+```ruby
     parser.require_kwds(:from)
     parser.add_conversion(:to, :int, :required)
 
@@ -222,25 +210,24 @@ and the allowed work as expected
      [:required_kwd_missing, :from],
      [:required_kwd_missing, :to]
     ])
-    
 ```
 
-```ruby :example Required Kwd Params are present
-
+But if they are present...
+```ruby
     parser.require_kwds(:from)
     parser.add_conversion(:to, :int, :required)
 
     kwds, _, errors = parser.parse(%w[to: 2 from: 1])
     expect(errors).to be_empty
     expect(kwds).to eq(os(from: "1", to: 2))
-    
 ```
 
 #### Context Syntactic Sugar
 
 Now all these API calls might not be your cup of tea, so let us add Syntactic Sugar to your Cup of Tea:
 
-```ruby :include Defining a simple conversion with required parameters
+Given a simple definition for converting required parameters
+```ruby
     let :parser do
       Lab42::Rgxargs.new do
         needs  :n, &:to_i
@@ -249,20 +236,15 @@ Now all these API calls might not be your cup of tea, so let us add Syntactic Su
     end
 ```
 
-```ruby :example
-
+Then the conversion works of course as expected
+```ruby
   kwds, _, _ = parser.parse(%w[n: alpha, m: 42])
   expect(kwds).to eq(os(n: 0, m: 42))
-    
 ```
-
-
-
-
 
 
 ## LICENSE
 
-Copyright 2020 Robert Dober robert.dober@gmail.com
+Copyright 202[0,1,2] Robert Dober robert.dober@gmail.com,
 
 Apache-2.0 [c.f LICENSE](LICENSE)  

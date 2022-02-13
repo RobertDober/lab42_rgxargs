@@ -1,5 +1,5 @@
 module Lab42
   class Rgxargs
-    VERSION = "0.1.12"
+    VERSION = "0.2.0"
   end
 end
