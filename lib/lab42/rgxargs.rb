@@ -18,7 +18,7 @@ module Lab42
     extend Forwardable
     def_delegators Predefined, :list_matcher
 
-    attr_reader :allowed, :args, :conversions, :defaults, :defined_rules, :errors, :options, :required, :syntaxes
+    attr_reader :allowed, :args, :conversions, :defaults, :defined_rules, :errors, :options, :posix, :required, :syntaxes
 
     def predefined_matchers
       Predefined.defined_names
@@ -52,11 +52,11 @@ module Lab42
     end
 
     def parse argv
-      until argv.empty?
-        argv = _parse_next argv
+      if posix
+        _parse_posix argv
+      else
+        _parse_ruby_syntax argv
       end
-      _check_required_kwds
-      [options, args, errors]
     end
 
     def allows name, matcher=nil, &converter
@@ -69,13 +69,14 @@ module Lab42
 
     private
 
-    def initialize &blk
+    def initialize(posix: false, &blk)
       @args          = []
       @allowed       = nil
       @conversions   = {}
       @defaults      = {}
       @defined_rules = []
       @errors        = []
+      @posix         = posix
       @required      = ::Set.new
       @syntaxes      = []
 
@@ -122,13 +123,59 @@ module Lab42
       end
     end
 
-    def _parse_next argv
+    def _parse_next_posix argv
+      first, *rest = argv
+      if first == '--'
+        @args += rest
+        return []
+      end
+      _parse_posix_param first, rest
+    end
+
+    def _parse_next_ruby_syntax argv
       first, *rest = argv
       if first == '--'
         @args += rest
         return []
       end
       _parse_symbolic first, rest
+    end
+
+    def _parse_posix argv
+      until argv.empty?
+        argv = _parse_next_posix argv
+      end
+      _check_required_kwds
+      [options, args, errors]
+    end
+
+    def _parse_posix_param first, rest
+      case first
+      when %r{\A--([-_[:alnum:]]+)=(.*)\z}
+        Regexp.last_match.to_a => _, name, value
+        name = name.gsub("-", "_")
+        options[name] = _convert(value, name: name)
+      when %r{\A--([-_[:alnum:]]+)\z}
+        Regexp.last_match.to_a => _, name
+        name = name.gsub("-", "_")
+        options[name] = true
+      when %r{\A-([[:alnum:]]+)\z}
+        $1.grapheme_clusters.each do |shopt|
+          options[shopt]=true
+        end
+      else
+        args << first
+        # _parse_syntax(first)
+      end
+      rest
+    end
+
+    def _parse_ruby_syntax argv
+      until argv.empty?
+        argv = _parse_next_ruby_syntax argv
+      end
+      _check_required_kwds
+      [options, args, errors]
     end
 
     def _parse_symbolic first, rest
