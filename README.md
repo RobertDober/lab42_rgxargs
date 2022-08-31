@@ -52,6 +52,27 @@ And the only error one can get with this null configuration is a missing value f
       expect(errors).to eq([[:missing_required_value, :a]])
 ```
 
+#### Context And What About Posix?
+
+Given a posix enabled parser
+```ruby
+    let(:parser) { Lab42::Rgxargs.new(posix: true) }
+```
+
+Then I can parse posix style options
+```ruby
+      kwds, positionals, _errors = parser.parse(%w{-xy --a=42 --hello=b hello})
+      expect(kwds).to eq(os(x:true, y:true, a: "42", hello: "b"))
+      expect(positionals).to eq(%w{hello})
+```
+
+And we can use `--` to get positionals with leading `-`s and we also accept long flags (therefore the = is needed for values)
+```ruby
+      kwds, positionals, _errors = parser.parse(%w{-xy --a -- --hello=b})
+      expect(kwds).to eq(os(x:true, y:true, a: true))
+      expect(positionals).to eq(%w{--hello=b})
+```
+
 ### Something A Little Bit More Elaborate?
 
 like
