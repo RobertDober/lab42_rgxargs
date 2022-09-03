@@ -52,6 +52,13 @@ And the only error one can get with this null configuration is a missing value f
       expect(errors).to eq([[:missing_required_value, :a]])
 ```
 
+And for those who prefer to use pattern matching, like YHS
+```ruby
+      parser.parse(%w{a: b: a:}) => {a:}, [], errors
+      expect(a).to eq("b:")
+      expect(errors).to eq([[:missing_required_value, :a]])
+```
+
 #### Context And What About Posix?
 
 Given a posix enabled parser
