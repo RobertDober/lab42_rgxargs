@@ -1,7 +1,8 @@
 require 'forwardable'
-require 'ostruct'
 require 'lab42/enumerable'
 require 'set'
+
+require_relative 'monkey/open_struct'
 module Lab42
 
   class Rgxargs
