@@ -19,7 +19,7 @@ module Lab42
     extend Forwardable
     def_delegators Predefined, :list_matcher
 
-    attr_reader :allowed, :args, :conversions, :defaults, :defined_rules, :errors, :options, :posix, :required, :syntaxes
+    attr_reader :allowed, :args, :conversions, :defaults, :defined_rules, :errors, :open_struct, :options, :posix, :required, :syntaxes
 
     def predefined_matchers
       Predefined.defined_names
@@ -70,7 +70,7 @@ module Lab42
 
     private
 
-    def initialize(posix: false, &blk)
+    def initialize(open_struct: true, posix: false, &blk)
       @args          = []
       @allowed       = nil
       @conversions   = {}
@@ -78,11 +78,12 @@ module Lab42
       @defined_rules = []
       @errors        = []
       @posix         = posix
+      @open_struct   = open_struct
       @required      = ::Set.new
       @syntaxes      = []
 
       instance_exec(&blk) if blk
-      @options       = ::OpenStruct.new(defaults)
+      @options       = defaults
     end
 
     def _convert(value, name:)
@@ -147,7 +148,7 @@ module Lab42
         argv = _parse_next_posix argv
       end
       _check_required_kwds
-      [options, args, errors]
+      _return_values
     end
 
     def _parse_posix_param first, rest
@@ -155,14 +156,14 @@ module Lab42
       when %r{\A--([-_[:alnum:]]+)=(.*)\z}
         Regexp.last_match.to_a => _, name, value
         name = name.gsub("-", "_")
-        options[name] = _convert(value, name: name)
+        options[name.to_sym] = _convert(value, name: name)
       when %r{\A--([-_[:alnum:]]+)\z}
         Regexp.last_match.to_a => _, name
         name = name.gsub("-", "_")
-        options[name] = true
+        options[name.to_sym] = true
       when %r{\A-([[:alnum:]]+)\z}
         $1.grapheme_clusters.each do |shopt|
-          options[shopt]=true
+          options[shopt.to_sym]=true
         end
       else
         args << first
@@ -176,7 +177,7 @@ module Lab42
         argv = _parse_next_ruby_syntax argv
       end
       _check_required_kwds
-      [options, args, errors]
+      _return_values
     end
 
     def _parse_symbolic first, rest
@@ -184,7 +185,7 @@ module Lab42
       when %r{\A:(.*)}
         switch = $1.gsub('-','_').to_sym
         _check_switch(switch)
-        options[switch]=true
+        options[switch.to_sym]=true
         rest
       when %r{(.*):\z}
         kwd = $1.gsub('-', '_').to_sym
@@ -202,7 +203,7 @@ module Lab42
     def _parse_syntax first
       value, as = syntaxes.find_value(first){ |matcher| matcher.match(first) }
       if as
-        options[as] = value
+        options[as.to_sym] = value
       else
         args << value
       end
@@ -211,12 +212,19 @@ module Lab42
     def _parse_value name, rest
       value, *rest1 = rest
       if value
-        options[name] = _convert(value, name: name)
+        options[name.to_sym] = _convert(value, name: name)
         return rest1
       end
       errors << [:missing_required_value, name]
       []
     end
 
+    def _return_values
+      if open_struct
+        [::OpenStruct.new(options), args, errors]
+      else
+        [options, args, errors]
+      end
+    end
   end
 end

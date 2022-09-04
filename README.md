@@ -59,6 +59,28 @@ And for those who prefer to use pattern matching, like YHS
       expect(errors).to eq([[:missing_required_value, :a]])
 ```
 
+#### Context Hash instead of OpenStruct?
+
+Although it can be very convenient to return an `OpenStruct` instance for the parsed options
+a `Hash` instance might be a better choice, especially for pattern matching as `OpenStruct`
+does not implement that protocol :(
+
+Given a parser configured to return options as a Hash
+```ruby
+      let(:parser) { Lab42::Rgxargs.new(open_struct: false) }
+      let(:posix) { Lab42::Rgxargs.new(open_struct: false, posix: true) }
+```
+
+Then we just get a good ol' Hash ;)
+```ruby
+    parser.parse(%w[a: 1 b: 2]) => {a: alpha, b: beta}, _, _
+    expect(alpha.to_i + beta.to_i).to eq(3)
+
+    posix.parse(%w[-n --a=1]) => {a: alpha, n: true}, _, _
+    expect(alpha).to eq("1")
+```
+
+
 #### Context And What About Posix?
 
 Given a posix enabled parser
