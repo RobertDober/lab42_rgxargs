@@ -32,15 +32,11 @@ end
 
 require_relative '../lib/lab42'
 require_relative '../lib/lab42/rgxargs'
-Dir.glob('support/**/*.rb').each{ |f| require_relative f }
 
-  def correct(positionals=[], **options)
-    [OpenStruct.new(**options), positionals, []]
-  end
+$LOAD_PATH << "."
+Dir.glob('spec/support/**/*.rb').each{ |f| require f }
+$LOAD_PATH.pop
 
-  def empty_correct positionals
-    [OpenStruct.new, positionals, []]
-  end
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest

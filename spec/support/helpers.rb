@@ -1,12 +1,11 @@
 module Support
   module Helpers
-
     def correct(positionals=[], **options)
-      [OpenStruct.new(**options), positionals, []]
+      [L42::Map.new(**options), positionals, []]
     end
 
     def empty_correct positionals
-      [OpenStruct.new, positionals, []]
+      [L42::Map.new, positionals, []]
     end
   end
 end

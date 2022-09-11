@@ -2,7 +2,6 @@ require 'forwardable'
 require 'lab42/enumerable'
 require 'set'
 
-require_relative 'monkey/open_struct'
 module Lab42
 
   class Rgxargs
@@ -19,7 +18,7 @@ module Lab42
     extend Forwardable
     def_delegators Predefined, :list_matcher
 
-    attr_reader :allowed, :args, :conversions, :defaults, :defined_rules, :errors, :open_struct, :options, :posix, :required, :syntaxes
+    attr_reader :allowed, :args, :conversions, :defaults, :defined_rules, :errors, :l42_map, :options, :posix, :required, :syntaxes
 
     def predefined_matchers
       Predefined.defined_names
@@ -70,7 +69,7 @@ module Lab42
 
     private
 
-    def initialize(open_struct: true, posix: false, &blk)
+    def initialize(l42_map: true, posix: false, &blk)
       @args          = []
       @allowed       = nil
       @conversions   = {}
@@ -78,7 +77,7 @@ module Lab42
       @defined_rules = []
       @errors        = []
       @posix         = posix
-      @open_struct   = open_struct
+      @l42_map   = l42_map
       @required      = ::Set.new
       @syntaxes      = []
 
@@ -220,8 +219,8 @@ module Lab42
     end
 
     def _return_values
-      if open_struct
-        [::OpenStruct.new(options), args, errors]
+      if l42_map
+        [L42::Map.new(**options), args, errors]
       else
         [options, args, errors]
       end
