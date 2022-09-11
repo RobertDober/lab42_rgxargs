@@ -26,7 +26,7 @@ RSpec.describe Lab42::Rgxargs do
 
     it "but gives errors otherwise" do
       expect( parser.parse(%w{a: v,r,v}) ).to \
-      eq([OpenStruct.new(a: nil), [], 
+      eq([L42::Map.new(a: nil), [], 
           [[:syntax_error, :a, "v,r,v does not match (?-mix:\\A((?:v|p|x)(?:,(?:v|p|x))*)\\z)"]]])
     end
   end

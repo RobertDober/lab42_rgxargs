@@ -9,10 +9,10 @@ RSpec.describe "API.md" do
   context "Ruby like default syntax" do
     # API.md:14
     let(:parser) {Lab42::Rgxargs.new}
-    
+
     private
     def os(**kwds)
-    OpenStruct.new(kwds)
+    L42::Map.new(**kwds)
     end
     it "it parses the args into kwds and positionals (API.md:24)" do
       kwds, positionals, _errors = parser.parse(%w{a: 42 hello :b c: 1})

@@ -14,11 +14,5 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 3.1.0'
 
-
-  s.add_development_dependency 'speculate_about', '~> 0.1.2'
-  s.add_development_dependency 'rspec', '~> 3.9'
-  s.add_development_dependency 'pry-byebug', '~> 3.7'
-  s.add_development_dependency 'pry-doc', '~> 1.0'
-
-
+  s.add_dependency 'l42_map', '~> 0.1.1'
 end

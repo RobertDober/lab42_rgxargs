@@ -7,11 +7,6 @@ parse args according to regexen
 [![Coverage Status](https://coveralls.io/repos/github/RobertDober/lab42_rgxargs/badge.svg?branch=master)](https://coveralls.io/github/RobertDober/lab42_rgxargs?branch=master)
 [![Gem Version](https://badge.fury.io/rb/lab42_rgxargs.svg)](http://badge.fury.io/rb/lab42_rgxargs)
 [![Gem Downloads](https://img.shields.io/gem/dt/lab42_rgxargs.svg)](https://rubygems.org/gems/lab42_rgxargs)
-<!--
-     [![Code Climate](https://codeclimate.com/github/RobertDober/lab42_streams/badges/gpa.svg)](https://codeclimate.com/github/RobertDober/lab42_streams)
-  [![Issue Count](https://codeclimate.com/github/RobertDober/lab42_streams/badges/issue_count.svg)](https://codeclimate.com/github/RobertDober/lab42_streams)
-  [![Test Coverage](https://codeclimate.com/github/RobertDober/lab42_streams/badges/coverage.svg)](https://codeclimate.com/github/RobertDober/lab42_streams)
--->
 
 
 ## Yet Another Command Line Argument Parser?
@@ -30,7 +25,7 @@ Given the default parser
       let(:parser) {Lab42::Rgxargs.new}
 
       private
-      def os(**kwds); OpenStruct.new(kwds) end
+      def os(**kwds); L42::Map.new(**kwds) end
 ```
 ### What Do I want?
 
@@ -59,7 +54,7 @@ And for those who prefer to use pattern matching, like YHS
       expect(errors).to eq([[:missing_required_value, :a]])
 ```
 
-#### Context Hash instead of OpenStruct?
+#### Context Hash instead of L42::Map?
 
 Although it can be very convenient to return an `OpenStruct` instance for the parsed options
 a `Hash` instance might be a better choice, especially for pattern matching as `OpenStruct`
@@ -67,8 +62,8 @@ does not implement that protocol :(
 
 Given a parser configured to return options as a Hash
 ```ruby
-      let(:parser) { Lab42::Rgxargs.new(open_struct: false) }
-      let(:posix) { Lab42::Rgxargs.new(open_struct: false, posix: true) }
+      let(:parser) { Lab42::Rgxargs.new(l42_map: false) }
+      let(:posix) { Lab42::Rgxargs.new(l42_map: false, posix: true) }
 ```
 
 Then we just get a good ol' Hash ;)
