@@ -54,6 +54,11 @@ And for those who prefer to use pattern matching, like YHS
       expect(errors).to eq([[:missing_required_value, :a]])
 ```
 
+And unprovided arguments equal nil
+```ruby
+    expect(parser.parse([]).first.verbose).to be_nil
+```
+
 #### Context Hash instead of L42::Map?
 
 Although it can be very convenient to return an `OpenStruct` instance for the parsed options
@@ -74,7 +79,6 @@ Then we just get a good ol' Hash ;)
     posix.parse(%w[-n --a=1]) => {a: alpha, n: true}, _, _
     expect(alpha).to eq("1")
 ```
-
 
 #### Context And What About Posix?
 

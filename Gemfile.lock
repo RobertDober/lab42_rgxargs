@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    lab42_rgxargs (0.3.0)
+    lab42_rgxargs (0.3.1)
       l42_map (~> 0.1.1)
 
 GEM

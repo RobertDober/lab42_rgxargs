@@ -220,7 +220,7 @@ module Lab42
 
     def _return_values
       if l42_map
-        [L42::Map.new(**options), args, errors]
+        [L42::Map.new(**options).with_default(nil), args, errors]
       else
         [options, args, errors]
       end
